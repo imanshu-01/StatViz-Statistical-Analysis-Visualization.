@@ -150,6 +150,3 @@ You can improve this project by:
 ---
 
 ⭐ If you find this project useful, consider giving it a **star** on GitHub!
-
-
-## 📁 Project Structure
