@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistical Tool</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+        }
+        h2 { margin-top: 0; color: #333; }
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #5a6fd8; }
+        table {
+            margin: 20px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+        }
+        td:first-child { font-weight: bold; background: #f7f7f7; }
+        .controls {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .chart-container {
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .placeholder {
+            color: #aaa;
+            text-align: center;
+        }
+        canvas { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📊 Statistical Analysis Tool</h2>
+        <form method="POST">
+            <input type="text" name="numbers" placeholder="e.g. 10, 20, 30, 40" required>
+            <button type="submit">Analyze</button>
+        </form>
+
+        {% if result %}
+        <h3>Results</h3>
+        <table>
+            <tr><td>Mean</td><td>{{ result.mean }}</td></tr>
+            <tr><td>Median</td><td>{{ result.median }}</td></tr>
+            <tr><td>Range</td><td>{{ result.range }}</td></tr>
+            <tr><td>Outliers</td><td>{{ result.outliers }}</td></tr>
+        </table>
+
+        <div class="controls">
+            <label for="graphType">Graph Type:</label>
+            <select id="graphType">
+                <option value="bar">Bar</option>
+                <option value="line">Line</option>
+                <option value="pie">Pie</option>
+            </select>
+            <button onclick="drawChart()">Show Graph</button>
+
+            <form action="/download_pdf" method="POST" style="display:inline;">
+                <input type="hidden" name="graphType" id="hiddenGraph">
+                <button type="submit" onclick="setGraphType()">Download PDF</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="chart-container">
+            {% if result %}
+                <canvas id="myChart"></canvas>
+            {% else %}
+                <div class="placeholder">
+                    <p>📈 Your chart will appear here after analysis.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        {% if result %}
+        // Data passed from Flask
+        const data = {{ data|tojson }};
+
+        // Build frequency map
+        const freq = {};
+        data.forEach(val => freq[val] = (freq[val] || 0) + 1);
+
+        // Sort labels numerically
+        const labels = Object.keys(freq).map(Number).sort((a,b) => a - b);
+        const values = labels.map(l => freq[l]);
+
+        let chart;
+
+        function drawChart() {
+            const type = document.getElementById("graphType").value;
+            const ctx = document.getElementById("myChart").getContext("2d");
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Frequency",
+                        data: values,
+                        backgroundColor: ["#667eea", "#764ba2", "#6dd5ed", "#f6d365"],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: type === 'pie' } }
+                }
+            });
+        }
+
+        function setGraphType() {
+            document.getElementById("hiddenGraph").value = document.getElementById("graphType").value;
+        }
+
+        // Auto-draw on page load
+        window.onload = drawChart;
+        {% endif %}
+    </script>
+</body>
+</html>
