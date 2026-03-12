@@ -39,8 +39,8 @@ StatViz-Statistical-Analysis-Visualization/
 ### 1. Clone the repository
 
 ```
-git clone https://github.com/your-username/statistical-analysis-tool.git
-cd statistical-analysis-tool
+git clone https://github.com/imanshu-01/statistical-analysis-tool.git
+cd StatViz-Statistical-Analysis-Visualization
 ```
 
 ### 2. Create a virtual environment (recommended)
