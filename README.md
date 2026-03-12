@@ -27,12 +27,10 @@ A simple web application built with Flask that performs statistical analysis on 
 
 ```
 StatViz-Statistical-Analysis-Visualization/
-├── app.py
 ├── templates/
 │   └── index.html
-├── static/
-│   ├── style.css
-│   └── script.js
+├── app.py
+├── requirements.txt
 └── README.md
 ```
 
